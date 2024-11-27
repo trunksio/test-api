@@ -49,3 +49,25 @@ async def save_message(message: Message):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/message/{filename}", tags=["Messages"])
+async def get_message(filename: str):
+    """
+    Retrieve a message from a JSON file by filename
+    
+    The filename should be the name of the JSON file without the 'data/' prefix
+    """
+    try:
+        filepath = os.path.join("data", filename)
+        if not os.path.exists(filepath):
+            raise HTTPException(status_code=404, detail="Message not found")
+            
+        with open(filepath, "r") as f:
+            message_data = json.load(f)
+            
+        return message_data
+        
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=500, detail="Invalid JSON file")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
